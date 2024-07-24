@@ -64,7 +64,7 @@ if image_file and audio_file:
     
     # Save the final video
     output_path = tempfile.mktemp(suffix=".mp4")
-    video.write_videofile(output_path, codec="libx264", fps=24)
+    video.write_videofile(output_path, codec="libx264", fps=24, logger=None, verbose=False)
     
     # Provide video file for download
     with open(output_path, "rb") as video_file:
