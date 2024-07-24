@@ -28,11 +28,13 @@ if image_files and audio_file:
 
     # Save the uploaded images and create image clips
     image_clips = []
+    image_paths = []
     for image_file in image_files:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as img_tmp_file:
             img_tmp_file.write(image_file.getvalue())
             image_path = img_tmp_file.name
             st.write(f"Image saved to {image_path}")
+            image_paths.append(image_path)
 
         image_clip = ImageClip(image_path).set_duration(image_duration)
         image_clips.append(image_clip)
@@ -54,7 +56,7 @@ if image_files and audio_file:
 
     # Cleanup
     os.remove(audio_path)
-    for image_file in image_files:
+    for image_path in image_paths:
         os.remove(image_path)
     os.remove(output_path)
 else:
