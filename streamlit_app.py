@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tempfile
 import os
+from PIL import Image
 
 # Function to create waveform image
 def create_waveform(audio_path, output_path):
@@ -40,6 +41,12 @@ if image_file and audio_file:
     waveform_image_path = tempfile.mktemp(suffix=".png")
     create_waveform(audio_path, waveform_image_path)
     
+    # Resize waveform image using Pillow
+    waveform_image = Image.open(waveform_image_path)
+    waveform_image = waveform_image.resize((waveform_image.width, 100), Image.LANCZOS)
+    waveform_resized_path = tempfile.mktemp(suffix=".png")
+    waveform_image.save(waveform_resized_path)
+    
     # Load image and audio
     image_clip = ImageClip(image_path)
     audio_clip = AudioFileClip(audio_path)
@@ -48,8 +55,8 @@ if image_file and audio_file:
     image_clip = image_clip.set_duration(audio_clip.duration)
     
     # Create waveform clip
-    waveform_clip = ImageClip(waveform_image_path).set_duration(audio_clip.duration)
-    waveform_clip = waveform_clip.resize(height=100).set_position(("center", "bottom"))
+    waveform_clip = ImageClip(waveform_resized_path).set_duration(audio_clip.duration)
+    waveform_clip = waveform_clip.set_position(("center", "bottom"))
     
     # Composite video with image and waveform
     video = CompositeVideoClip([image_clip, waveform_clip.set_start(0)])
@@ -68,4 +75,5 @@ if image_file and audio_file:
     os.remove(image_path)
     os.remove(audio_path)
     os.remove(waveform_image_path)
+    os.remove(waveform_resized_path)
     os.remove(output_path)
