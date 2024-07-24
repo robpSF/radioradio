@@ -29,23 +29,28 @@ image_file = st.file_uploader("Upload an Image", type=["png", "jpg", "jpeg"])
 audio_file = st.file_uploader("Upload an MP3 Audio File", type=["mp3"])
 
 if image_file and audio_file:
+    st.write("Files uploaded successfully!")
     # Save the uploaded files
     with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as img_tmp_file:
         img_tmp_file.write(image_file.getvalue())
         image_path = img_tmp_file.name
+        st.write(f"Image saved to {image_path}")
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as audio_tmp_file:
         audio_tmp_file.write(audio_file.getvalue())
         audio_path = audio_tmp_file.name
+        st.write(f"Audio saved to {audio_path}")
     
     waveform_image_path = tempfile.mktemp(suffix=".png")
     create_waveform(audio_path, waveform_image_path)
+    st.write(f"Waveform image created at {waveform_image_path}")
     
     # Resize waveform image using Pillow
     waveform_image = Image.open(waveform_image_path)
     waveform_image = waveform_image.resize((waveform_image.width, 100), Image.LANCZOS)
     waveform_resized_path = tempfile.mktemp(suffix=".png")
     waveform_image.save(waveform_resized_path)
+    st.write(f"Waveform image resized and saved to {waveform_resized_path}")
     
     # Load image and audio
     image_clip = ImageClip(image_path)
@@ -61,10 +66,12 @@ if image_file and audio_file:
     # Composite video with image and waveform
     video = CompositeVideoClip([image_clip, waveform_clip.set_start(0)])
     video = video.set_audio(audio_clip)
+    st.write("Video composition completed.")
     
     # Save the final video
     output_path = tempfile.mktemp(suffix=".mp4")
     video.write_videofile(output_path, codec="libx264", fps=24, logger=None, verbose=False)
+    st.write(f"Video saved to {output_path}")
     
     # Provide video file for download
     with open(output_path, "rb") as video_file:
@@ -77,3 +84,5 @@ if image_file and audio_file:
     os.remove(waveform_image_path)
     os.remove(waveform_resized_path)
     os.remove(output_path)
+else:
+    st.write("Please upload both an image and an MP3 file.")
