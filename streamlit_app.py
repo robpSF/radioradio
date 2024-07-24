@@ -9,7 +9,7 @@ def adjust_audio_parameters(audio_path, output_path, bitrate="256k", channels=2,
     os.system(command)
 
 # Streamlit application
-st.title('Multiple Images and Audio to Video')
+st.title('Multiple Images and Audio to Video!')
 
 image_files = st.file_uploader("Upload Images", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 audio_file = st.file_uploader("Upload an MP3 Audio File", type=["mp3"])
