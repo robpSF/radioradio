@@ -1,37 +1,45 @@
 import streamlit as st
-from moviepy.editor import ImageClip, AudioFileClip
+from moviepy.editor import ImageClip, AudioFileClip, concatenate_videoclips
 import tempfile
 import os
 
 # Streamlit application
-st.title('Image and Audio to Video')
+st.title('Multiple Images and Audio to Video')
 
-image_file = st.file_uploader("Upload an Image", type=["png", "jpg", "jpeg"])
+image_files = st.file_uploader("Upload Images", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 audio_file = st.file_uploader("Upload an MP3 Audio File", type=["mp3"])
 
-if image_file and audio_file:
+if image_files and audio_file:
     st.write("Files uploaded successfully!")
-    
-    # Save the uploaded files
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as img_tmp_file:
-        img_tmp_file.write(image_file.getvalue())
-        image_path = img_tmp_file.name
-        st.write(f"Image saved to {image_path}")
 
+    # Save the uploaded audio file
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as audio_tmp_file:
         audio_tmp_file.write(audio_file.getvalue())
         audio_path = audio_tmp_file.name
         st.write(f"Audio saved to {audio_path}")
     
-    # Load image and audio
-    image_clip = ImageClip(image_path)
+    # Load audio
     audio_clip = AudioFileClip(audio_path)
+    audio_duration = audio_clip.duration
     
-    # Set the duration of the image clip to match the audio
-    image_clip = image_clip.set_duration(audio_clip.duration)
+    # Calculate duration per image
+    image_duration = audio_duration / len(image_files)
+    st.write(f"Each image will be displayed for {image_duration:.2f} seconds.")
+
+    # Save the uploaded images and create image clips
+    image_clips = []
+    for image_file in image_files:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as img_tmp_file:
+            img_tmp_file.write(image_file.getvalue())
+            image_path = img_tmp_file.name
+            st.write(f"Image saved to {image_path}")
+
+        image_clip = ImageClip(image_path).set_duration(image_duration)
+        image_clips.append(image_clip)
     
-    # Set the audio of the image clip
-    video = image_clip.set_audio(audio_clip)
+    # Concatenate image clips
+    video = concatenate_videoclips(image_clips)
+    video = video.set_audio(audio_clip)
     st.write("Video composition completed.")
     
     # Save the final video
@@ -45,8 +53,9 @@ if image_file and audio_file:
         st.download_button(label="Download Video", data=video_file, file_name="output_video.mp4", mime="video/mp4")
 
     # Cleanup
-    os.remove(image_path)
     os.remove(audio_path)
+    for image_file in image_files:
+        os.remove(image_path)
     os.remove(output_path)
 else:
-    st.write("Please upload both an image and an MP3 file.")
+    st.write("Please upload images and an MP3 file.")
