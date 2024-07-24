@@ -2,6 +2,7 @@ import streamlit as st
 from moviepy.editor import ImageClip, AudioFileClip, concatenate_videoclips
 import tempfile
 import os
+from PIL import Image
 
 # Streamlit application
 st.title('Multiple Images and Audio to Video')
@@ -26,7 +27,7 @@ if image_files and audio_file:
     image_duration = audio_duration / len(image_files)
     st.write(f"Each image will be displayed for {image_duration:.2f} seconds.")
 
-    # Save the uploaded images and create image clips
+    # Save the uploaded images, resize them, and create image clips
     image_clips = []
     image_paths = []
     for image_file in image_files:
@@ -35,6 +36,11 @@ if image_files and audio_file:
             image_path = img_tmp_file.name
             st.write(f"Image saved to {image_path}")
             image_paths.append(image_path)
+
+            # Open the image with PIL and resize to a consistent size (e.g., 720p)
+            img = Image.open(image_path)
+            img = img.resize((1280, 720), Image.LANCZOS)
+            img.save(image_path)
 
         image_clip = ImageClip(image_path).set_duration(image_duration)
         image_clips.append(image_clip)
