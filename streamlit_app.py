@@ -61,7 +61,7 @@ if image_files and audio_file:
 
     # Save the final video
     output_path = tempfile.mktemp(suffix=".mp4")
-    video.write_videofile(output_path, codec="libx264", fps=24, logger=None, verbose=False)
+    video.write_videofile(output_path, codec="libx264", fps=29.96, logger=None, verbose=False)
     st.write(f"Video saved to {output_path}")
 
     # Provide video file for download
