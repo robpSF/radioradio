@@ -48,7 +48,7 @@ if image_files and audio_file:
     # Concatenate image clips
     video = concatenate_videoclips(image_clips)
     video = video.set_audio(audio_clip)
-    st.write("Video composition completed.")
+    st.write("Video composition completed. Standby.....")
     
     # Save the final video
     output_path = tempfile.mktemp(suffix=".mp4")
